@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Strategy Presentation - Deep Navy (Sidebar)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            position: relative;
+            flex-direction: row;
+        }
+
+        .slide {
+            width: calc(100% - 320px);
+            margin-left: 320px;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide.title-slide {
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .nav-controls {
+            display: none;
+        }
+
+        .sidebar {
+            width: 320px;
+            height: 100vh;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px 40px;
+            padding-bottom: 100px; /* Space for fixed nav buttons */
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(255,255,255,0.2);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .sidebar-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-photo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 2rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .sidebar-header p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .slide-number {
+            font-size: 4rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.15);
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 320px;
+            background: #0f172a;
+            padding: 20px 40px 30px 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-nav-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sidebar-nav-btn {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 14px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .sidebar-nav-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .sidebar-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter-sidebar {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 70px 80px;
+            background: white;
+            overflow-y: auto;
+        }
+
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .title-slide .main-content {
+            overflow: hidden;
+        }
+
+        .title-slide h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.1;
+        }
+
+        .title-slide .subtitle {
+            font-size: 1.4rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 50px;
+            font-weight: 400;
+        }
+
+        .title-slide .audience {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 60px;
+            line-height: 1.8;
+        }
+
+        .title-slide .duration {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.6);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .slide-title-large {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .slide-subtitle-large {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 50px;
+            font-weight: 400;
+        }
+
+        h2 {
+            color: #0f172a;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 35px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .content-card {
+            background: #f8fafc;
+            padding: 35px;
+            border-left: 4px solid #0f172a;
+            transition: all 0.3s ease;
+        }
+
+        .content-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .content-card h3 {
+            color: #0f172a;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .content-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .content-card li {
+            padding: 10px 0;
+            color: #475569;
+            padding-left: 28px;
+            position: relative;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .content-card li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #0f172a;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .timeline {
+            margin-top: 40px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #0f172a;
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .timeline-number {
+            background: #0f172a;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        .timeline-content h3 {
+            color: #0f172a;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .timeline-content p {
+            color: #64748b;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .phase-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .phase-card {
+            background: #f8fafc;
+            padding: 35px;
+            border-top: 4px solid #0f172a;
+            transition: all 0.3s ease;
+        }
+
+        .phase-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .phase-days {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .phase-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .phase-card h3 {
+            color: #0f172a;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .phase-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .phase-card li {
+            padding: 8px 0;
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .metric-card {
+            background: #0f172a;
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.85);
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .metric-desc {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.6;
+        }
+
+        .progress-indicator {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 20px;
+        }
+
+        .progress-dot {
+            width: 100%;
+            padding: 10px 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+
+        .progress-dot:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .progress-dot.active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.2);
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active .progress-bar {
+            background: white;
+            height: 6px;
+        }
+
+        .progress-dot-label {
+            display: none;
+        }
+
+        /* Video Modal Styles */
+        .video-placeholder {
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .video-placeholder:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.4) !important;
+        }
+
+        .video-placeholder::after {
+            content: '▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+
+        .video-placeholder:hover::after {
+            background: rgba(0,0,0,0.9);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .video-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-modal-panel {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            max-width: 95%;
+            max-height: 95vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .video-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .video-modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin: 0;
+        }
+
+        .video-modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .video-modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .video-modal-body {
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            overflow: hidden;
+            background: #000;
+            min-height: 0;
+            position: relative;
+            width: 100%;
+        }
+
+        .video-modal-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 0;
+        }
+
+        .video-modal-content video {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 0;
+            box-shadow: none;
+            display: block;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Card Enlarge Modal Styles */
+        .metric-card, .phase-card {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .metric-card:hover, .phase-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(15, 23, 42, 0.4) !important;
+        }
+
+        .card-enlarge-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            box-sizing: border-box;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-enlarge-modal.active {
+            display: flex;
+        }
+
+        .card-enlarge-content {
+            transform: scale(3);
+            transform-origin: center;
+            pointer-events: auto;
+            max-width: 90%;
+            max-height: 90%;
+            cursor: pointer;
+        }
+
+        .card-popup-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card-popup-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-popup-panel {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            max-width: 800px;
+            max-height: 85vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .card-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-popup-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            margin: 0;
+        }
+
+        .card-popup-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .card-popup-close:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .card-popup-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+            background: white;
+        }
+
+        .card-popup-body h3 {
+            color: #0f172a;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .card-popup-body p {
+            color: #475569;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .card-popup-placeholder {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Consistent Sidebar (same for all slides) -->
+        <div class="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-header">
+                    <div class="sidebar-photo">
+                        <img src="profile-photo.jpg" alt="Profile Photo" />
+                    </div>
+                    <h2>AI Strategy & Adoption</h2>
+                    <p style="font-size: 0.95rem; color: rgba(255,255,255,0.8); margin-bottom: 8px;">SNS AI Impact</p>
+                    <p>First 120 Days Vision</p>
+                </div>
+            </div>
+            <div class="sidebar-nav">
+                <div class="sidebar-nav-controls">
+                    <button class="sidebar-nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+                    <button class="sidebar-nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide title-slide active">
+            <div class="main-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: transparent; color: white;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 15px;">AI Strategy & Adoption</h1>
+                <div class="subtitle">Alex's 120 Days Vision</div>
+                <div style="margin-top: 40px; margin-bottom: 40px; width: 100%; max-width: 500px; text-align: center;">
+                    <img src="alex-video-placeholder.png" alt="Video Introduction" class="video-placeholder" id="videoPlaceholder" onclick="openVideoModal()" style="width: 100%; max-width: 500px; height: auto; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); cursor: pointer;">
+                    <div style="margin-top: 15px; font-size: 0.9rem; color: rgba(255,255,255,0.7); font-style: italic;">
+                        Click to play introduction video
+                    </div>
+                </div>
+                <div class="audience">
+                    Presented to Leadership Team<br>
+                    <span style="opacity: 0.8;">Ken Vaughan • Chris Judd • Robert Toon</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="main-content">
+                <div class="slide-title-large">Brown & Brown AI Roadmap Discovery</div>
+                <br><br><br>
+                <h2 style="color: #667eea;">Assessment Framework - Identified Impact Segments</h2>
+                <div class="metric-grid">
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Sales & Marketing</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>Pre-sales Marketing</li>
+                            <li>Sales Automations</li>
+                            <li>Resources</li>
+                        </ul>
+                    </div>
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Customer Journey</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>Live Response Agents</li>
+                            <li>Underwriting Process</li>
+                            <li>Claims Process</li>
+                        </ul>
+                    </div>
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Internal Tools</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>System Automations</li>
+                            <li>Employee Engagement</li>
+                            <li>Communications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="main-content">
+                <div class="slide-title-large">Brown & Brown AI Roadmap Discovery</div>
+                <br><br><br>
+                <h2 style="color: #667eea;">Assessment Framework - Project Evaluation Criteria</h2>
+                <div class="metric-grid">
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Alignment</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>Leadership Vision</li>
+                            <li>Company Culture</li>
+                            <li>Stakeholder Willingness</li>
+                        </ul>
+                    </div>
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Return on Investment</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>Acceptable ROI</li>
+                            <li>Reasonable Cost</li>
+                            <li>Budget Alignment</li>
+                        </ul>
+                    </div>
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Feasibility</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>Technical Capacity</li>
+                            <li>Technical Ability</li>
+                            <li>Timeline Alignment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="main-content">
+                <div class="slide-title-large">Brown & Brown AI Roadmap Discovery</div>
+                <br><br><br>
+                <h2 style="color: #667eea;">AI Adoption Roadmap - 120 Day Journey</h2>
+                <div class="metric-grid">
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Foundation</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>Build Connections</li>
+                            <li>Technical Landscape</li>
+                            <li>Future Vision</li>
+                        </ul>
+                    </div>
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Validation</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>My Understanding</li>
+                            <li>Evaluate Criteria</li>
+                            <li>Strategic Roadmap</li>
+                        </ul>
+                    </div>
+                    <div class="metric-card" style="text-align: left;" onclick="enlargeCard(this, event)">
+                        <div class="metric-value" style="font-size: 1.5rem; margin-bottom: 20px; text-align: left;">Execution</div>
+                        <ul style="list-style: none; padding: 0; text-align: left; color: rgba(255,255,255,0.9); line-height: 2; margin: 0;">
+                            <li>Pilot Programs</li>
+                            <li>Monitor Feedback</li>
+                            <li>Implement Solutions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="main-content">
+                <div class="slide-title-large">AI Adoption Roadmap</div>
+                <div class="slide-subtitle-large">High-level phases for introducing AI into workflows</div>
+                <h2>120-Day Journey</h2>
+                <div class="phase-container">
+                    <div class="phase-card" onclick="enlargeCard(this, event)">
+                        <div class="phase-header">
+                            <div class="phase-days">Days 1-30</div>
+                            <div class="phase-label">Quick Wins</div>
+                        </div>
+                        <h3>Foundation</h3>
+                        <ul>
+                            <li>Process automation initiatives</li>
+                            <li>Chatbot deployment</li>
+                            <li>Document analysis tools</li>
+                            <li>Build momentum and buy-in</li>
+                        </ul>
+                    </div>
+                    <div class="phase-card" onclick="enlargeCard(this, event)">
+                        <div class="phase-header">
+                            <div class="phase-days">Days 31-90</div>
+                            <div class="phase-label">Pilot Projects</div>
+                        </div>
+                        <h3>Validation</h3>
+                        <ul>
+                            <li>Predictive analytics pilots</li>
+                            <li>Workflow optimization</li>
+                            <li>Data insights platform</li>
+                            <li>Measure ROI and impact</li>
+                        </ul>
+                    </div>
+                    <div class="phase-card" onclick="enlargeCard(this, event)">
+                        <div class="phase-header">
+                            <div class="phase-days">Days 91-120</div>
+                            <div class="phase-label">Scale & Govern</div>
+                        </div>
+                        <h3>Maturity</h3>
+                        <ul>
+                            <li>Expand successful pilots</li>
+                            <li>Governance framework implementation</li>
+                            <li>Compliance checkpoints</li>
+                            <li>Long-term roadmap definition</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="main-content">
+                <div class="slide-title-large">Risk Avoidance & Governance</div>
+                <div class="slide-subtitle-large">Key risks and guardrails for responsible AI deployment</div>
+                <h2>Risk Management Framework</h2>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h3>Data Privacy</h3>
+                        <ul>
+                            <li>GDPR and CCPA compliance</li>
+                            <li>Data minimization principles</li>
+                            <li>Encryption and access controls</li>
+                            <li>Regular privacy audits</li>
+                        </ul>
+                    </div>
+                    <div class="content-card">
+                        <h3>Bias & Fairness</h3>
+                        <ul>
+                            <li>Diverse training data sets</li>
+                            <li>Bias testing protocols</li>
+                            <li>Human oversight and review</li>
+                            <li>Fairness metrics and monitoring</li>
+                        </ul>
+                    </div>
+                    <div class="content-card">
+                        <h3>Regulatory Compliance</h3>
+                        <ul>
+                            <li>Industry-specific regulations</li>
+                            <li>Documentation and traceability</li>
+                            <li>Compliance monitoring systems</li>
+                            <li>Legal review and approval processes</li>
+                        </ul>
+                    </div>
+                    <div class="content-card">
+                        <h3>Technical Risks</h3>
+                        <ul>
+                            <li>Model validation and testing</li>
+                            <li>Robust testing protocols</li>
+                            <li>Fallback procedures</li>
+                            <li>Security best practices</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        // Note: Now 9 slides total (added Core Areas of Impact as slide 2)
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (index >= 0 && index < totalSlides) {
+                slides[index].classList.add('active');
+                currentSlideIndex = index;
+                
+                // Update button states
+                document.getElementById('prevBtn').disabled = index === 0;
+                document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+            }
+        }
+
+        function changeSlide(direction) {
+            const newIndex = currentSlideIndex + direction;
+            if (newIndex >= 0 && newIndex < totalSlides) {
+                showSlide(newIndex);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(totalSlides - 1);
+        });
+
+        showSlide(0);
+
+        // Video Modal Function - Global function for onclick handler
+        function openVideoModal() {
+            const videoModal = document.getElementById('videoModal');
+            const modalVideo = document.getElementById('modalVideo');
+            if (videoModal) {
+                videoModal.classList.add('active');
+                if (modalVideo) {
+                    modalVideo.load();
+                    modalVideo.play().catch(err => {
+                        console.error('Error playing video:', err);
+                    });
+                }
+            }
+        }
+
+        function closeVideoModal() {
+            const videoModal = document.getElementById('videoModal');
+            const modalVideo = document.getElementById('modalVideo');
+            if (videoModal) {
+                videoModal.classList.remove('active');
+                if (modalVideo) {
+                    modalVideo.pause();
+                    modalVideo.currentTime = 0;
+                }
+            }
+        }
+
+        // Card Enlarge Functions
+        function enlargeCard(cardElement, event) {
+            event.stopPropagation();
+            const modal = document.getElementById('cardEnlargeModal');
+            const content = document.getElementById('cardEnlargeContent');
+            
+            if (modal && content) {
+                // Clone the card and its styles
+                const clonedCard = cardElement.cloneNode(true);
+                clonedCard.style.position = 'relative';
+                clonedCard.style.margin = '0';
+                clonedCard.style.pointerEvents = 'auto';
+                clonedCard.onclick = function(e) {
+                    e.stopPropagation();
+                    closeEnlargeModal();
+                };
+                
+                // Clear the content and add the cloned card
+                content.innerHTML = '';
+                content.appendChild(clonedCard);
+                
+                // Show the modal
+                modal.classList.add('active');
+            }
+        }
+
+        function closeEnlargeModal() {
+            const modal = document.getElementById('cardEnlargeModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Video Modal Functionality - Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const videoModal = document.getElementById('videoModal');
+            const modalVideo = document.getElementById('modalVideo');
+            const closeModal = document.getElementById('closeVideoModal');
+
+            if (videoPlaceholder) {
+                videoPlaceholder.addEventListener('click', () => {
+                    console.log('Video placeholder clicked');
+                    if (videoModal) {
+                        videoModal.classList.add('active');
+                        if (modalVideo) {
+                            modalVideo.load();
+                            modalVideo.play().catch(err => {
+                                console.error('Error playing video:', err);
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    if (videoModal) {
+                        videoModal.classList.remove('active');
+                        if (modalVideo) {
+                            modalVideo.pause();
+                            modalVideo.currentTime = 0;
+                        }
+                    }
+                });
+            }
+
+            // Close modal when clicking outside the video
+            if (videoModal) {
+                videoModal.addEventListener('click', (e) => {
+                    if (e.target === videoModal) {
+                        videoModal.classList.remove('active');
+                        if (modalVideo) {
+                            modalVideo.pause();
+                            modalVideo.currentTime = 0;
+                        }
+                    }
+                });
+            }
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (videoModal && videoModal.classList.contains('active')) {
+                        videoModal.classList.remove('active');
+                        if (modalVideo) {
+                            modalVideo.pause();
+                            modalVideo.currentTime = 0;
+                        }
+                    }
+                    const cardEnlargeModal = document.getElementById('cardEnlargeModal');
+                    if (cardEnlargeModal && cardEnlargeModal.classList.contains('active')) {
+                        closeEnlargeModal();
+                    }
+                }
+            });
+        });
+
+        // Also try to initialize if DOM is already loaded
+        if (document.readyState === 'loading') {
+            // DOM hasn't loaded yet, wait for DOMContentLoaded
+        } else {
+            // DOM is already loaded, initialize immediately
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const videoModal = document.getElementById('videoModal');
+            const modalVideo = document.getElementById('modalVideo');
+            const closeModal = document.getElementById('closeVideoModal');
+
+            if (videoPlaceholder) {
+                videoPlaceholder.addEventListener('click', () => {
+                    console.log('Video placeholder clicked');
+                    if (videoModal) {
+                        videoModal.classList.add('active');
+                        if (modalVideo) {
+                            modalVideo.load();
+                            modalVideo.play().catch(err => {
+                                console.error('Error playing video:', err);
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    if (videoModal) {
+                        videoModal.classList.remove('active');
+                        if (modalVideo) {
+                            modalVideo.pause();
+                            modalVideo.currentTime = 0;
+                        }
+                    }
+                });
+            }
+
+            if (videoModal) {
+                videoModal.addEventListener('click', (e) => {
+                    if (e.target === videoModal) {
+                        videoModal.classList.remove('active');
+                        if (modalVideo) {
+                            modalVideo.pause();
+                            modalVideo.currentTime = 0;
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="video-modal" onclick="if(event.target === this) closeVideoModal()">
+        <div class="video-modal-panel" onclick="event.stopPropagation()">
+            <div class="video-modal-header">
+                <h3 class="video-modal-title">Introduction Video</h3>
+                <button id="closeVideoModal" class="video-modal-close" onclick="closeVideoModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="video-modal-body">
+                <div class="video-modal-content">
+                    <video id="modalVideo" controls>
+                        <source src="intro-video.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Enlarge Modal -->
+    <div id="cardEnlargeModal" class="card-enlarge-modal" onclick="if(event.target === this) closeEnlargeModal()">
+        <div id="cardEnlargeContent" class="card-enlarge-content">
+            <!-- Card will be cloned and inserted here -->
+        </div>
+    </div>
+</body>
+</html>
+
