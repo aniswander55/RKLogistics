@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Showcase - All Designs</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: #f3f4f6;
+        }
+
+        /* Selector Sidebar */
+        .sidebar {
+            width: 25%;
+            background: #ffffff;
+            height: 100vh;
+            border-right: 2px solid #e5e7eb;
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .sidebar-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .dashboard-option {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dashboard-option:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .dashboard-option.active {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+        }
+
+        .dashboard-option.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #3b82f6;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .option-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-option.active .option-number {
+            background: #1d4ed8;
+        }
+
+        .option-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .option-description {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .option-preview {
+            width: 100%;
+            height: 120px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            background: #ffffff;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            gap: 6px;
+        }
+
+        .preview-header {
+            height: 20px;
+            border-radius: 4px;
+            background: #f3f4f6;
+        }
+
+        .preview-cards {
+            display: flex;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .preview-card {
+            flex: 1;
+            border-radius: 4px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            padding: 6px;
+            gap: 4px;
+        }
+
+        .preview-card-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: #e5e7eb;
+        }
+
+        .preview-v3 .preview-header { background: #ffffff; }
+        .preview-v3 .preview-card { background: #ffffff; border-color: #e5e7eb; }
+        .preview-v3 .preview-card-bar { background: #3b82f6; }
+
+        .preview-material .preview-header { background: #1e1e1e; }
+        .preview-material .preview-card { background: #2d2d2d; border-color: #333; }
+        .preview-material .preview-card-bar { background: #4caf50; }
+
+        .preview-corporate .preview-header { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); }
+        .preview-corporate .preview-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-color: #e1e8ed; border-left: 3px solid #3498db; }
+        .preview-corporate .preview-card-bar { background: #3498db; }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            height: 100vh;
+            position: relative;
+            background: #f3f4f6;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .dashboard-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 24px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .dashboard-container.active {
+            display: block;
+        }
+
+        /* Common Dashboard Styles - will be overridden by specific dashboard styles */
+        .dashboard-main-content {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .dashboard-inner-container {
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .dashboard-header {
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-summary-metrics {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 0;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-summary-card {
+            border-radius: 6px;
+            padding: 8px 12px;
+            flex: 1;
+        }
+
+        .dashboard-summary-label {
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-summary-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .dashboard-period-filter {
+            margin-left: auto;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .dashboard-charts-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .dashboard-charts-row-single {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .dashboard-charts-row-single .dashboard-chart-card {
+            grid-column: 1;
+        }
+
+        .dashboard-chart-card {
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dashboard-chart-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .dashboard-chart-card.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            padding: 24px;
+            border-radius: 0;
+            overflow-y: auto;
+            cursor: default;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .dashboard-chart-card h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-chart-card.expanded h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-close-button {
+            display: none;
+            padding: 6px 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .dashboard-chart-card.expanded .dashboard-close-button {
+            display: block;
+        }
+
+        .dashboard-chart-container-small {
+            height: 220px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            position: relative;
+        }
+
+        .dashboard-chart-card.expanded .dashboard-chart-container-small {
+            height: calc(100vh - 120px) !important;
+        }
+
+        /* Dashboard 1: Classic (V3 Table) Styles */
+        #dashboard-v3-table {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        #dashboard-v3-table .dashboard-header {
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+
+        #dashboard-v3-table .dashboard-summary-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        #dashboard-v3-table .dashboard-summary-label {
+            color: #6b7280;
+        }
+
+        #dashboard-v3-table .dashboard-summary-value {
+            color: #111827;
+        }
+
+        #dashboard-v3-table .dashboard-period-filter {
+            border: 1px solid #d1d5db;
+            background: white;
+        }
+
+        #dashboard-v3-table .dashboard-chart-card {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        #dashboard-v3-table .dashboard-chart-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
+        /* Dashboard 2: Material Design Styles */
+        #dashboard-material {
+            background: #121212;
+            color: #e0e0e0;
+        }
+
+        #dashboard-material .dashboard-header {
+            background: #1e1e1e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        #dashboard-material .dashboard-summary-card {
+            background: #2d2d2d;
+            border: 1px solid #333;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #dashboard-material .dashboard-summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+            background: #333;
+        }
+
+        #dashboard-material .dashboard-summary-label {
+            color: #b0b0b0;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #dashboard-material .dashboard-summary-value {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        #dashboard-material .dashboard-period-filter {
+            border: 1px solid #444;
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        #dashboard-material .dashboard-chart-card {
+            background: #1e1e1e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+        }
+
+        #dashboard-material .dashboard-chart-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.3);
+            background: #252525;
+        }
+
+        #dashboard-material .dashboard-chart-card h2 {
+            color: #ffffff;
+        }
+
+        /* Dashboard 3: Corporate Professional Styles */
+        #dashboard-corporate {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            color: #2c3e50;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+
+        #dashboard-corporate .dashboard-header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        #dashboard-corporate .dashboard-summary-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid #e1e8ed;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        #dashboard-corporate .dashboard-summary-card:nth-child(1) { border-left-color: #3498db; }
+        #dashboard-corporate .dashboard-summary-card:nth-child(2) { border-left-color: #2ecc71; }
+        #dashboard-corporate .dashboard-summary-card:nth-child(3) { border-left-color: #f39c12; }
+        #dashboard-corporate .dashboard-summary-card:nth-child(4) { border-left-color: #e74c3c; }
+
+        #dashboard-corporate .dashboard-summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border-left-width: 6px;
+        }
+
+        #dashboard-corporate .dashboard-summary-label {
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #dashboard-corporate .dashboard-summary-value {
+            color: #2c3e50;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+        }
+
+        #dashboard-corporate .dashboard-period-filter {
+            border: 1px solid #bdc3c7;
+            background: #ffffff;
+            color: #2c3e50;
+            font-weight: 600;
+            font-family: 'Georgia', serif;
+        }
+
+        #dashboard-corporate .dashboard-chart-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        #dashboard-corporate .dashboard-chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        #dashboard-corporate .dashboard-chart-card h2 {
+            color: #2c3e50;
+            font-family: 'Georgia', serif;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Selector Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Dashboard Showcase</h1>
+            <p>Choose a dashboard design to view</p>
+        </div>
+
+        <div class="dashboard-option active" data-dashboard="v3-table" onclick="switchDashboard('v3-table')">
+            <div class="option-number">1</div>
+            <div class="option-title">Classic Dashboard</div>
+            <div class="option-description">Clean, professional layout with light theme and standard styling</div>
+            <div class="option-preview preview-v3">
+                <div class="preview-header"></div>
+                <div class="preview-cards">
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 60%;"></div>
+                        <div class="preview-card-bar" style="width: 40%;"></div>
+                        <div class="preview-card-bar" style="width: 80%;"></div>
+                    </div>
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 50%;"></div>
+                        <div class="preview-card-bar" style="width: 70%;"></div>
+                        <div class="preview-card-bar" style="width: 30%;"></div>
+                    </div>
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 45%;"></div>
+                        <div class="preview-card-bar" style="width: 65%;"></div>
+                        <div class="preview-card-bar" style="width: 55%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-option" data-dashboard="material" onclick="switchDashboard('material')">
+            <div class="option-number">2</div>
+            <div class="option-title">Material Design</div>
+            <div class="option-description">Modern dark theme with Material Design 3 principles</div>
+            <div class="option-preview preview-material">
+                <div class="preview-header"></div>
+                <div class="preview-cards">
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 60%; background: #4caf50;"></div>
+                        <div class="preview-card-bar" style="width: 40%; background: #2196f3;"></div>
+                        <div class="preview-card-bar" style="width: 80%; background: #ff9800;"></div>
+                    </div>
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 50%; background: #2196f3;"></div>
+                        <div class="preview-card-bar" style="width: 70%; background: #4caf50;"></div>
+                        <div class="preview-card-bar" style="width: 30%; background: #f44336;"></div>
+                    </div>
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 45%; background: #9c27b0;"></div>
+                        <div class="preview-card-bar" style="width: 65%; background: #ff9800;"></div>
+                        <div class="preview-card-bar" style="width: 55%; background: #4caf50;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-option" data-dashboard="corporate" onclick="switchDashboard('corporate')">
+            <div class="option-number">3</div>
+            <div class="option-title">Corporate Professional</div>
+            <div class="option-description">Elegant business-focused design with serif typography</div>
+            <div class="option-preview preview-corporate">
+                <div class="preview-header"></div>
+                <div class="preview-cards">
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 60%; background: #3498db;"></div>
+                        <div class="preview-card-bar" style="width: 40%; background: #2ecc71;"></div>
+                        <div class="preview-card-bar" style="width: 80%; background: #f39c12;"></div>
+                    </div>
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 50%; background: #2ecc71;"></div>
+                        <div class="preview-card-bar" style="width: 70%; background: #3498db;"></div>
+                        <div class="preview-card-bar" style="width: 30%; background: #e74c3c;"></div>
+                    </div>
+                    <div class="preview-card">
+                        <div class="preview-card-bar" style="width: 45%; background: #9b59b6;"></div>
+                        <div class="preview-card-bar" style="width: 65%; background: #f39c12;"></div>
+                        <div class="preview-card-bar" style="width: 55%; background: #3498db;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Dashboard 1: Classic (V3 Table) -->
+        <div id="dashboard-v3-table" class="dashboard-container active">
+            <div class="dashboard-main-content">
+                <div class="dashboard-inner-container">
+                    <div class="dashboard-header">
+                        <div class="dashboard-summary-metrics">
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Total Opportunity Value</div>
+                                <div class="dashboard-summary-value">$3.2M</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Total Contract Value</div>
+                                <div class="dashboard-summary-value">$9.8M</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Monthly Revenue</div>
+                                <div class="dashboard-summary-value">$731k</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Contracts Expiring (90d)</div>
+                                <div class="dashboard-summary-value">3</div>
+                            </div>
+                            <select class="dashboard-period-filter">
+                                <option>Weekly</option>
+                                <option>Monthly</option>
+                                <option>Quarterly</option>
+                                <option selected>YTD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-row-single">
+                        <div class="dashboard-chart-card" id="v3-opportunityFunnelCard">
+                            <h2>
+                                Opportunity Funnel
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('v3-opportunityFunnelCard', 'v3')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="v3-opportunityFunnelChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-row">
+                        <div class="dashboard-chart-card" id="v3-salesPipelineCard">
+                            <h2>
+                                Sales Pipeline
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('v3-salesPipelineCard', 'v3')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="v3-salesPipelineChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-chart-card" id="v3-opportunityCard">
+                            <h2>
+                                Opportunity Value Distribution
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('v3-opportunityCard', 'v3')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="v3-opportunityChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-chart-card" id="v3-customersCard">
+                            <h2>
+                                Customer Accounts
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('v3-customersCard', 'v3')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="v3-customersChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard 2: Material Design -->
+        <div id="dashboard-material" class="dashboard-container">
+            <div class="dashboard-main-content">
+                <div class="dashboard-inner-container">
+                    <div class="dashboard-header">
+                        <div class="dashboard-summary-metrics">
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Total Opportunity Value</div>
+                                <div class="dashboard-summary-value">$3.2M</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Total Contract Value</div>
+                                <div class="dashboard-summary-value">$9.8M</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Monthly Revenue</div>
+                                <div class="dashboard-summary-value">$731k</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Contracts Expiring (90d)</div>
+                                <div class="dashboard-summary-value">3</div>
+                            </div>
+                            <select class="dashboard-period-filter">
+                                <option>Weekly</option>
+                                <option>Monthly</option>
+                                <option>Quarterly</option>
+                                <option selected>YTD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-row-single">
+                        <div class="dashboard-chart-card" id="mat-opportunityFunnelCard">
+                            <h2>
+                                Opportunity Funnel
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('mat-opportunityFunnelCard', 'mat')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="mat-opportunityFunnelChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-row">
+                        <div class="dashboard-chart-card" id="mat-salesPipelineCard">
+                            <h2>
+                                Sales Pipeline
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('mat-salesPipelineCard', 'mat')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="mat-salesPipelineChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-chart-card" id="mat-opportunityCard">
+                            <h2>
+                                Opportunity Value Distribution
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('mat-opportunityCard', 'mat')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="mat-opportunityChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-chart-card" id="mat-customersCard">
+                            <h2>
+                                Customer Accounts
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('mat-customersCard', 'mat')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="mat-customersChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard 3: Corporate Professional -->
+        <div id="dashboard-corporate" class="dashboard-container">
+            <div class="dashboard-main-content">
+                <div class="dashboard-inner-container">
+                    <div class="dashboard-header">
+                        <div class="dashboard-summary-metrics">
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Total Opportunity Value</div>
+                                <div class="dashboard-summary-value">$3.2M</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Total Contract Value</div>
+                                <div class="dashboard-summary-value">$9.8M</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Monthly Revenue</div>
+                                <div class="dashboard-summary-value">$731k</div>
+                            </div>
+                            <div class="dashboard-summary-card">
+                                <div class="dashboard-summary-label">Contracts Expiring (90d)</div>
+                                <div class="dashboard-summary-value">3</div>
+                            </div>
+                            <select class="dashboard-period-filter">
+                                <option>Weekly</option>
+                                <option>Monthly</option>
+                                <option>Quarterly</option>
+                                <option selected>YTD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-row-single">
+                        <div class="dashboard-chart-card" id="corp-opportunityFunnelCard">
+                            <h2>
+                                Opportunity Funnel
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('corp-opportunityFunnelCard', 'corp')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="corp-opportunityFunnelChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-row">
+                        <div class="dashboard-chart-card" id="corp-salesPipelineCard">
+                            <h2>
+                                Sales Pipeline
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('corp-salesPipelineCard', 'corp')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="corp-salesPipelineChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-chart-card" id="corp-opportunityCard">
+                            <h2>
+                                Opportunity Value Distribution
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('corp-opportunityCard', 'corp')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="corp-opportunityChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-chart-card" id="corp-customersCard">
+                            <h2>
+                                Customer Accounts
+                                <button class="dashboard-close-button" onclick="event.stopPropagation(); closeChart('corp-customersCard', 'corp')">Close</button>
+                            </h2>
+                            <div class="dashboard-chart-container-small">
+                                <canvas id="corp-customersChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global chart storage
+        const charts = {
+            v3: {},
+            mat: {},
+            corp: {}
+        };
+
+        // Switch dashboard function
+        function switchDashboard(dashboardId) {
+            // Update sidebar active state
+            document.querySelectorAll('.dashboard-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-dashboard="${dashboardId}"]`).classList.add('active');
+
+            // Hide all dashboards
+            document.querySelectorAll('#dashboard-v3-table, #dashboard-material, #dashboard-corporate').forEach(container => {
+                container.classList.remove('active');
+            });
+
+            // Show selected dashboard
+            const selectedDashboard = document.getElementById(`dashboard-${dashboardId}`);
+            if (selectedDashboard) {
+                selectedDashboard.classList.add('active');
+                
+                // Force a reflow to ensure the dashboard is visible
+                void selectedDashboard.offsetHeight;
+                
+                // Initialize charts if not already initialized
+                setTimeout(() => {
+                    initializeCharts(dashboardId);
+                }, 200);
+            }
+        }
+
+        // Initialize charts for a dashboard
+        function initializeCharts(dashboardId) {
+            const prefix = dashboardId === 'v3-table' ? 'v3' : (dashboardId === 'material' ? 'mat' : 'corp');
+            
+            // Check if charts already exist
+            if (charts[prefix].salesChart) {
+                // Charts exist, just resize them
+                Object.values(charts[prefix]).forEach(chart => {
+                    if (chart && typeof chart.resize === 'function') {
+                        setTimeout(() => chart.resize(), 100);
+                    }
+                });
+                return;
+            }
+            
+            // Make sure Chart.js is loaded
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js not loaded');
+                return;
+            }
+
+            const textColor = dashboardId === 'material' ? '#e0e0e0' : (dashboardId === 'corporate' ? '#2c3e50' : '#111827');
+            const gridColor = dashboardId === 'material' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+            // Sales Pipeline Chart
+            const salesCtx = document.getElementById(`${prefix}-salesPipelineChart`);
+            if (salesCtx) {
+                charts[prefix].salesChart = new Chart(salesCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won'],
+                        datasets: [{
+                            label: 'Opportunities',
+                            data: [10, 14, 10, 9, 6],
+                            backgroundColor: dashboardId === 'material' 
+                                ? ['rgba(76, 175, 80, 0.8)', 'rgba(33, 150, 243, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(244, 67, 54, 0.8)', 'rgba(156, 39, 176, 0.8)']
+                                : dashboardId === 'corporate'
+                                ? ['rgba(52, 152, 219, 0.8)', 'rgba(46, 204, 113, 0.8)', 'rgba(243, 156, 18, 0.8)', 'rgba(231, 76, 60, 0.8)', 'rgba(155, 89, 182, 0.8)']
+                                : ['rgb(59, 130, 246)', 'rgb(34, 197, 94)', 'rgb(251, 191, 36)', 'rgb(239, 68, 68)', 'rgb(168, 85, 247)'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } },
+                            y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                        }
+                    }
+                });
+            }
+
+            // Opportunity Distribution Chart
+            const oppCtx = document.getElementById(`${prefix}-opportunityChart`);
+            if (oppCtx) {
+                charts[prefix].oppChart = new Chart(oppCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['$0-100k', '$100-250k', '$250-400k', '$400k+'],
+                        datasets: [{
+                            data: [2, 3, 4, 3],
+                            backgroundColor: dashboardId === 'material'
+                                ? ['rgba(158, 158, 158, 0.6)', 'rgba(76, 175, 80, 0.8)', 'rgba(33, 150, 243, 0.8)', 'rgba(255, 193, 7, 0.8)']
+                                : dashboardId === 'corporate'
+                                ? ['rgba(189, 195, 199, 0.6)', 'rgba(52, 152, 219, 0.8)', 'rgba(46, 204, 113, 0.8)', 'rgba(243, 156, 18, 0.8)']
+                                : ['rgb(156, 163, 175)', 'rgb(59, 130, 246)', 'rgb(251, 191, 36)', 'rgb(34, 197, 94)']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'bottom', labels: { color: textColor, padding: 8 } }
+                        }
+                    }
+                });
+            }
+
+            // Opportunity Funnel Chart
+            const funnelCtx = document.getElementById(`${prefix}-opportunityFunnelChart`);
+            if (funnelCtx) {
+                charts[prefix].funnelChart = new Chart(funnelCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Leads', 'Qualified', 'Proposal', 'Negotiation', 'Closed'],
+                        datasets: [{
+                            label: 'Opportunities',
+                            data: [50, 35, 20, 12, 8],
+                            backgroundColor: dashboardId === 'material'
+                                ? ['rgba(76, 175, 80, 0.8)', 'rgba(33, 150, 243, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(244, 67, 54, 0.8)', 'rgba(156, 39, 176, 0.8)']
+                                : dashboardId === 'corporate'
+                                ? ['rgba(52, 152, 219, 0.8)', 'rgba(46, 204, 113, 0.8)', 'rgba(243, 156, 18, 0.8)', 'rgba(231, 76, 60, 0.8)', 'rgba(155, 89, 182, 0.8)']
+                                : ['rgb(59, 130, 246)', 'rgb(34, 197, 94)', 'rgb(251, 191, 36)', 'rgb(239, 68, 68)', 'rgb(168, 85, 247)'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } },
+                            y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                        }
+                    }
+                });
+            }
+
+            // Customer Accounts Chart
+            const customersCtx = document.getElementById(`${prefix}-customersChart`);
+            if (customersCtx) {
+                charts[prefix].customersChart = new Chart(customersCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Healthy', 'Warning', 'Critical', 'New'],
+                        datasets: [{
+                            label: 'Customers',
+                            data: [12, 2, 1, 0],
+                            backgroundColor: dashboardId === 'material'
+                                ? ['rgba(76, 175, 80, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(244, 67, 54, 0.8)', 'rgba(158, 158, 158, 0.6)']
+                                : dashboardId === 'corporate'
+                                ? ['rgba(52, 152, 219, 0.8)', 'rgba(243, 156, 18, 0.8)', 'rgba(231, 76, 60, 0.8)', 'rgba(189, 195, 199, 0.6)']
+                                : ['rgb(34, 197, 94)', 'rgb(251, 191, 36)', 'rgb(239, 68, 68)', 'rgb(156, 163, 175)'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } },
+                            x: { ticks: { color: textColor }, grid: { color: gridColor } }
+                        }
+                    }
+                });
+            }
+
+            // Add click handlers
+            setupChartClickHandlers(prefix);
+        }
+
+        // Setup click handlers for charts
+        function setupChartClickHandlers(prefix) {
+            const cardIds = [
+                `${prefix}-salesPipelineCard`,
+                `${prefix}-opportunityCard`,
+                `${prefix}-opportunityFunnelCard`,
+                `${prefix}-customersCard`
+            ];
+
+            cardIds.forEach(cardId => {
+                const card = document.getElementById(cardId);
+                if (card) {
+                    card.addEventListener('click', function(e) {
+                        if (!this.classList.contains('expanded') && !e.target.classList.contains('dashboard-close-button') && e.target.tagName !== 'BUTTON') {
+                            expandChart(cardId, prefix);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Expand chart function
+        function expandChart(cardId, prefix) {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.classList.add('expanded');
+                setTimeout(() => {
+                    const chartName = cardId.includes('salesPipeline') ? 'salesChart' :
+                                    cardId.includes('opportunityCard') && !cardId.includes('Funnel') ? 'oppChart' :
+                                    cardId.includes('Funnel') ? 'funnelChart' : 'customersChart';
+                    if (charts[prefix][chartName]) {
+                        charts[prefix][chartName].resize();
+                    }
+                }, 100);
+            }
+        }
+
+        // Close chart function
+        function closeChart(cardId, prefix) {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.classList.remove('expanded');
+                const container = card.querySelector('.dashboard-chart-container-small');
+                const canvas = card.querySelector('canvas');
+                
+                if (container) {
+                    container.style.height = '';
+                    container.style.width = '';
+                    container.style.maxWidth = '';
+                }
+                if (canvas) {
+                    canvas.style.width = '';
+                    canvas.style.maxWidth = '';
+                }
+                card.style.width = '';
+                card.style.maxWidth = '';
+                card.style.left = '';
+                card.style.right = '';
+                
+                setTimeout(() => {
+                    const chartName = cardId.includes('salesPipeline') ? 'salesChart' :
+                                    cardId.includes('opportunityCard') && !cardId.includes('Funnel') ? 'oppChart' :
+                                    cardId.includes('Funnel') ? 'funnelChart' : 'customersChart';
+                    if (charts[prefix][chartName]) {
+                        charts[prefix][chartName].resize();
+                    }
+                }, 300);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Wait for Chart.js to load
+            if (typeof Chart !== 'undefined') {
+                // Initialize the first dashboard
+                initializeCharts('v3-table');
+            } else {
+                // Retry if Chart.js hasn't loaded yet
+                setTimeout(function() {
+                    if (typeof Chart !== 'undefined') {
+                        initializeCharts('v3-table');
+                    }
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
+
